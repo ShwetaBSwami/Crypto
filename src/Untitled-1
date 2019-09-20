@@ -1,0 +1,133 @@
+import React, { Component } from 'react';
+import logo from './logo.svg';
+import { DataReducer } from './redux';
+import { connect } from 'react-redux'; //connect will ultimately return a new component which has the dispatch method as a prop
+import { DataActions } from './redux';
+import './Crypto.css';
+import { ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, Typography, Button, Grid } from "@material-ui/core"
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+import Donut from './Donut';
+class Crypto extends Component {
+  state = {
+    flag: false,
+    moreInfo: false,
+    showInfo: false,
+    dataInfo: '',
+    data2: [{}]
+  }
+  fetchData = () => {
+
+    const { fetchApiAction: fetchApi } = this.props;
+    fetchApi();
+    this.setState({ flag: true, data2: this.props.fetchApiReducer })
+
+
+  }
+  //     shouldComponentUpdate(nextProps, nextState){
+  //       debugger;
+  //       console.log("check in update",nextProps)
+  //       console.log("this.props in update",this.props)
+  //       if(nextProps !== this.props){
+  //         return false
+  //       }
+
+  // }
+  // static getDerivedStateFromProps(nextProps,prevState){
+  //   console.log("nextprops",nextProps)
+  //   return{
+  //      data2:nextProps.fetchApiReducer
+  //   }
+  //   }
+
+  displayData = (data) => {
+
+    // console.log("displaydata", data)
+    this.setState({ showInfo: true, dataInfo: data })
+  }
+  deleteData = (item) => {
+
+    // console.log("item in deletedata",item)
+    var array = this.state.data2.data; // make a separate copy of the array
+    var index = array.indexOf(item)
+    if (index !== -1) {
+      array.splice(index, 1);
+      this.setState({ data2: array });
+    }
+  }
+  moreInfo = () => {
+    this.setState({ moreInfo: true })
+  }
+  render() {
+    // console.log("this.state.data2",this.state.data2)
+    const chartConfig = {
+
+      dataSource: this.state.dataInfo
+    }
+    //  console.log("fetchapireducer",this.props.fetchApiReducer.data.map((data)=>data))
+    // console.log("fetchapireducer", this.props.fetchApiReducer)
+    // console.log("this.state.dataInfo", this.state.dataInfo)
+    return (
+      <div className="root">
+
+
+        {this.state.flag == true ? this.state.data2.data === undefined ? '' : this.state.data2.data.map((data, index) =>
+          <ExpansionPanel data={data} className="expansion-panel" key={index}>
+            <ExpansionPanelSummary
+              expandIcon={<ExpandMoreIcon />}
+              aria-controls="panel1a-content"
+              id="panel1a-header"
+              onClick={() => this.displayData(data)}
+
+            >
+
+              <DeleteIcon onClick={() => this.deleteData(data)} />
+
+
+
+              <Typography className="heading" key={index}>{data.name}</Typography>
+            </ExpansionPanelSummary>
+            <ExpansionPanelDetails >
+              <Typography>
+                {this.state.showInfo == true ? this.state.dataInfo.info && this.state.dataInfo.price : ''}
+              </Typography>
+              <Donut chartConfig1={chartConfig} key={index} keyData={data} />
+              <Typography onClick={this.moreInfo}>See more</Typography>
+
+            </ExpansionPanelDetails>
+            <Grid item>
+              {this.state.moreInfo == true ? data.about : ''}
+            </Grid>
+          </ExpansionPanel>
+
+        ) : ''}
+
+        <Button onClick={this.fetchData} className="fetch-button">Fetch Data</Button>
+
+      </div>
+    );
+  }
+}
+
+
+const mapStateToProps = ({ DataReducer }) => {
+  return {
+    fetchApiReducer: DataReducer.fetchApiReducer,
+
+  };
+};
+
+const mapDispatchToProps = {
+
+  fetchApiAction: DataActions.fetchApiAction,
+
+
+};
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Crypto);
+
+
+

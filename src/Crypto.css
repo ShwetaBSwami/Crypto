@@ -1,0 +1,14 @@
+.root{
+    width: 100%
+}
+
+.heading {
+    font-size: 10px;
+    color:blue;
+  }
+  .expansion-panel{
+      display: inline;
+  }
+  .fetch-button{
+    text-align: center
+  }
